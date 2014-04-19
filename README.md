@@ -6,7 +6,7 @@ A service for authenticating the owner of a Bitcoin address
 The purpose of this project is to create a method for an app or web service to verify that a person is in fact the owner of a particular Bitcoin address. In other words, to verify that they are in possession of the private key for a particular Bitcoin address without providing the private key.
 
 Basic flow of this service is as follows:  
--Client requests a token from the service and supplies a Bitcoin public address that will be authenticated
+-Client requests a token from the service and supplies a Bitcoin public address that will be authenticated  
 -Service responds with token  
 -Client responds with token, and token ECDSA signature created by using their Bitcoin private key  
 -Service responds with verification results (success or failure of challenge response for supplied Bitcoin address, token, and ECDSA signature)
