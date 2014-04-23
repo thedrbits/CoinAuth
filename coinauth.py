@@ -3,7 +3,6 @@
 from flask import Flask, jsonify, abort, request, make_response, url_for
 from flask.views import MethodView
 from flask.ext.restful import Api, Resource, reqparse, fields, marshal
-import validatebitcoinaddress
 
 app = Flask(__name__, static_url_path = "")
 api = Api(app)
