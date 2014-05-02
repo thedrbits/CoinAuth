@@ -181,19 +181,19 @@ def b58decode(v, length):
     for (i, c) in enumerate(v[::-1]):
         long_value += __b58chars.find(c) * (__b58base**i)
 
-    result = ''
+    result = bytes()
     while long_value >= 256:
         div, mod = divmod(long_value, 256)
-        result = chr(mod) + result
+        result = bytes([mod]) + result
         long_value = div
-    result = chr(long_value) + result
+    result = bytes([long_value]) + result
 
     nPad = 0
     for c in v:
         if c == __b58chars[0]: nPad += 1
         else: break
 
-    result = chr(0)*nPad + result
+    result = bytes([0])*nPad + result
     if length is not None and len(result) != length:
         return None
 
@@ -225,7 +225,7 @@ def SecretToASecret(secret, compressed=False, addrtype=0):
 
 def ASecretToSecret(key, addrtype=0):
     vch = DecodeBase58Check(key)
-    if vch and vch[0] == chr((addrtype+128)&255):
+    if vch and vch[0] == bytes([(addrtype+128)&255])[0]:
         return vch[1:]
     else:
         return False
