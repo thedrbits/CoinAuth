@@ -57,7 +57,7 @@ def sha256(x):
     return hashlib.sha256(x).digest()
 
 def Hash(x):
-    if type(x) is unicode: x=x.encode('utf-8')
+    if type(x) is str: x=x.encode('utf-8')
     return sha256(sha256(x))
 
 hash_encode = lambda x: x[::-1].encode('hex')
