@@ -158,7 +158,7 @@ def b58encode(v):
 
     long_value = 0
     for (i, c) in enumerate(v[::-1]):
-        long_value += (256**i) * ord(c)
+        long_value += (256**i) * c
 
     result = ''
     while long_value >= __b58base:
