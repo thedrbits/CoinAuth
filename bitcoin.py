@@ -140,7 +140,7 @@ def public_key_to_bc_address(public_key):
     return hash_160_to_bc_address(h160)
 
 def hash_160_to_bc_address(h160, addrtype = 0):
-    vh160 = chr(addrtype) + h160
+    vh160 = bytes([addrtype]) + h160
     h = Hash(vh160)
     addr = vh160 + h[0:4]
     return b58encode(addr)
@@ -263,7 +263,7 @@ def public_key_from_private_key(sec):
 
 def address_from_private_key(sec):
     public_key = public_key_from_private_key(sec)
-    address = public_key_to_bc_address(public_key.decode('hex'))
+    address = public_key_to_bc_address(binascii.unhexlify(public_key))
     return address
 
 
