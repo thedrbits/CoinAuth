@@ -19,6 +19,7 @@
 
 
 import hashlib, base64, ecdsa, re
+import binascii
 import hmac
 from ecdsa import util
 
@@ -111,11 +112,11 @@ def i2o_ECPublicKey(pubkey, compressed=False):
         else:
             key = '02' + '%064x' % pubkey.point.x()
     else:
-        key = '04' + \
-              '%064x' % pubkey.point.x() + \
-              '%064x' % pubkey.point.y()
+        key = '04'
+        key += "{0:064x}".format(pubkey.point.x())
+        key += "{0:064x}".format(pubkey.point.y())
             
-    return key.decode('hex')
+    return binascii.unhexlify(key)
             
 # end pywallet openssl private key implementation
 
@@ -219,7 +220,7 @@ def PrivKeyToSecret(privkey):
     return privkey[9:9+32]
 
 def SecretToASecret(secret, compressed=False, addrtype=0):
-    vchIn = chr((addrtype+128)&255) + secret
+    vchIn = bytes([(addrtype+128)&255]) + secret
     if compressed: vchIn += '\01'
     return EncodeBase58Check(vchIn)
 
@@ -257,7 +258,7 @@ def public_key_from_private_key(sec):
     assert pkey
     compressed = is_compressed(sec)
     public_key = GetPubKey(pkey.pubkey, compressed)
-    return public_key.encode('hex')
+    return binascii.hexlify(public_key)
 
 
 def address_from_private_key(sec):
