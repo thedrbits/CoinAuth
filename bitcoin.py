@@ -3,6 +3,7 @@
 #
 # Electrum - lightweight Bitcoin client
 # Copyright (C) 2011 thomasv@gitorious
+# Modified by Daniel Rice drice@greenmangosystems.com for use in CoinAuth
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -349,8 +350,8 @@ def negative_point(P):
 
 def point_to_ser(P, comp=True ):
     if comp:
-        return ( ('%02x'%(2+(P.y()&1)))+('%064x'%P.x()) ).decode('hex')
-    return ( '04'+('%064x'%P.x())+('%064x'%P.y()) ).decode('hex')
+        return binascii.unhexlify( ('%02x'%(2+(P.y()&1)))+('%064x'%P.x()) )
+    return binascii.unhexlify( '04'+('%064x'%P.x())+('%064x'%P.y()) )
 
 
 def ser_to_point(Aser):
@@ -373,7 +374,7 @@ class EC_KEY(object):
         self.secret = secret
 
     def get_public_key(self, compressed=True):
-        return point_to_ser(self.pubkey.point, compressed).encode('hex')
+        return binascii.hexlify(point_to_ser(self.pubkey.point, compressed))
 
     def sign_message(self, message, compressed, address):
         private_key = ecdsa.SigningKey.from_secret_exponent( self.secret, curve = SECP256k1 )
@@ -680,7 +681,11 @@ def test_bip32(seed, sequence):
         c = c0
     print("----")
 
-        
+def generateNewKey():
+    G = generator_secp256k1
+    _r  = G.order()
+    pvk = ecdsa.util.randrange( pow(2,256) ) %_r
+    return EC_KEY(number_to_string(pvk,_r))
 
 def test_crypto():
 
