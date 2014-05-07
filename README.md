@@ -12,7 +12,7 @@ Basic flow of this service is as follows:
 4. Service responds with verification results (success or failure of challenge response for supplied Bitcoin address, nonce, and ECDSA signature)
 
 The nonce is comprised of the following:  
-1. A pseudo random number (for uniqueness) 
+1. A pseudo random number (for uniqueness)  
 2. The current time in seconds (to allow for token expiration)
 
 This service is built on top of Flask-RESTful http://flask-restful.readthedocs.org/en/latest/
