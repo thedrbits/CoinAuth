@@ -1,4 +1,4 @@
-CoinAuth
+CoinAuth (Not working yet, but expected to be working sometime in May 2014)
 ========
 
 A service for authenticating the owner of a Bitcoin address
