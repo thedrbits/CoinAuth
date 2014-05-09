@@ -30,16 +30,16 @@ noncedb = NonceStore(60*30) #Store nonces 30 minutes which is more than enough
 class ValidationAPI(Resource):
 	def __init__(self):
 		super(ValidationAPI, self).__init__()
-
+	
 	def get(self, nonce, btcaddress, signature):
 		return { 'result': noncedb.nonce_find_and_remove(int(nonce)) }
 
 class RequestNonceAPI(Resource):
-    def __init__(self):
-        super(RequestNonceAPI, self).__init__()
-        
-    def get(self):
-        return { 'nonce': noncedb.generate_nonce() }
+	def __init__(self):
+		super(RequestNonceAPI, self).__init__()
+
+	def get(self):
+		return { 'nonce': noncedb.generate_nonce() }
 
 api.add_resource(RequestNonceAPI, '/coinauth/api/v0.1/requestnonce/', endpoint = 'requestnonce')
 api.add_resource(ValidationAPI, '/coinauth/api/v0.1/validate/<nonce>/<btcaddress>/<signature>', endpoint = 'validate')
