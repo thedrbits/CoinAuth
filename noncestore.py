@@ -32,19 +32,14 @@ class NonceStore:
     _pq = []                         # list of entries arranged in a heap
     _entry_finder = {}               # mapping of nonces to entries
     _REMOVED = '<removed-nonce>'     # placeholder for a removed nonce
-    _counter = itertools.count()     # unique sequence count
     _dblock = RLock()
-    _counterlock = RLock()
     
     def __init__(self, timeoutSeconds):
         self._timeoutSeconds = timeoutSeconds
     
     def _add_nonce(self, nonce, time):
         'Add a new nonce'
-        self._counterlock.acquire()
-        count = next(self._counter)
-        self._counterlock.release()
-        entry = [time, count, nonce]
+        entry = [time, nonce]
         self._dblock.acquire()
         self._entry_finder[nonce] = entry
         heapq.heappush(self._pq, entry)
@@ -62,7 +57,7 @@ class NonceStore:
         self._dblock.acquire()
         iterSmallest = heapq.nsmallest(1, self._pq)
         while((len(iterSmallest)==1) and ((time() - iterSmallest[0][0]) > self._timeoutSeconds)):
-            self._entry_finder.pop(iterSmallest[0][2])
+            self._entry_finder.pop(iterSmallest[0][1])
             heapq.heappop(self._pq)
             iterSmallest = heapq.nsmallest(1, self._pq)
         self._dblock.release()
