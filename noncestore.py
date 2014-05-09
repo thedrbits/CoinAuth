@@ -26,51 +26,55 @@ import itertools
 from time import time
 import heapq
 import random
+from threading import RLock
 
 class NonceStore:
     _pq = []                         # list of entries arranged in a heap
     _entry_finder = {}               # mapping of nonces to entries
-    _REMOVED = '<removed-nonce>'      # placeholder for a removed nonce
+    _REMOVED = '<removed-nonce>'     # placeholder for a removed nonce
     _counter = itertools.count()     # unique sequence count
+    _dblock = RLock()
+    _counterlock = RLock()
     
     def __init__(self, timeoutSeconds):
         self._timeoutSeconds = timeoutSeconds
     
     def _add_nonce(self, nonce, time):
         'Add a new nonce'
+        self._counterlock.acquire()
         count = next(self._counter)
+        self._counterlock.release()
         entry = [time, count, nonce]
+        self._dblock.acquire()
         self._entry_finder[nonce] = entry
         heapq.heappush(self._pq, entry)
+        self._dblock.release()
     
     def _remove_nonce(self, nonce):
         'Mark an existing nonce as REMOVED.  Raise KeyError if not found.'
+        self._dblock.acquire()
         entry = self._entry_finder.pop(nonce)
         entry[-1] = self._REMOVED
-    
-    def _pop_nonce(self):
-        'Remove and return the lowest priority task. Raise KeyError if empty.'
-        while _pq:
-            time, count, nonce = heapq.heappop(_pq)
-            if nonce is not _REMOVED:
-                del _entry_finder[nonce]
-                return nonce
-        raise KeyError('pop from an empty priority queue')
+        self._dblock.release()
         
     def _remove_stale(self):
         'Remove nonces that are too old'
+        self._dblock.acquire()
         iterSmallest = heapq.nsmallest(1, self._pq)
         while((len(iterSmallest)==1) and ((time() - iterSmallest[0][0]) > self._timeoutSeconds)):
             self._entry_finder.pop(iterSmallest[0][2])
             heapq.heappop(self._pq)
             iterSmallest = heapq.nsmallest(1, self._pq)
+        self._dblock.release()
         
     def nonce_find_and_remove(self, nonce):
         'if found return True and remove nonce from DB, else False'
         self._remove_stale() # remove any that should be expired
         try:
+            self._dblock.acquire()
             self._entry_finder[nonce]# if this doesn't exist, error is thrown
             self._remove_nonce(nonce)
+            self._dblock.release()
             return True
         except KeyError:
             return False
