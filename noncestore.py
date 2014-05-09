@@ -23,8 +23,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import itertools
-from time import gmtime
-from heapq import *
+from time import time
+import heapq
 import random
 
 class NonceStore:
@@ -41,7 +41,7 @@ class NonceStore:
         count = next(self._counter)
         entry = [time, count, nonce]
         self._entry_finder[nonce] = entry
-        heappush(self._pq, entry)
+        heapq.heappush(self._pq, entry)
     
     def _remove_nonce(self, nonce):
         'Mark an existing nonce as REMOVED.  Raise KeyError if not found.'
@@ -51,7 +51,7 @@ class NonceStore:
     def _pop_nonce(self):
         'Remove and return the lowest priority task. Raise KeyError if empty.'
         while _pq:
-            time, count, nonce = heappop(_pq)
+            time, count, nonce = heapq.heappop(_pq)
             if nonce is not _REMOVED:
                 del _entry_finder[nonce]
                 return nonce
@@ -59,9 +59,15 @@ class NonceStore:
         
     def _remove_stale(self):
         'Remove nonces that are too old'
+        iterSmallest = heapq.nsmallest(1, self._pq)
+        while((len(iterSmallest)==1) and ((time() - iterSmallest[0][0]) > self._timeoutSeconds)):
+            self._entry_finder.pop(iterSmallest[0][2])
+            heapq.heappop(self._pq)
+            iterSmallest = heapq.nsmallest(1, self._pq)
         
     def nonce_find_and_remove(self, nonce):
         'if found return True and remove nonce from DB, else False'
+        self._remove_stale() # remove any that should be expired
         try:
             self._entry_finder[nonce]# if this doesn't exist, error is thrown
             self._remove_nonce(nonce)
@@ -73,6 +79,6 @@ class NonceStore:
         'Generate and return a new nonce. Store nonce to memory db'
         self._remove_stale() # remove any that should be expired
         newnonce = random.SystemRandom().randint(0, (2**64)-1) #64 bit number
-        self._add_nonce(newnonce, gmtime())
+        self._add_nonce(newnonce, time())
         return newnonce
     
