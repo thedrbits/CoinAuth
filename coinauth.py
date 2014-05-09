@@ -19,32 +19,30 @@
 from flask import Flask, jsonify, abort, request, make_response, url_for
 from flask.views import MethodView
 from flask.ext.restful import Api, Resource, reqparse, fields, marshal
-import bitcoin;
+import bitcoin
+from noncestore import NonceStore
 
 app = Flask(__name__, static_url_path = "")
 api = Api(app)
 
-#This is the bitcoin key the server uses to sign tokens. Generated when app
-#instance is started.
-sessionKey = bitcoin.generateNewKey()
+noncedb = NonceStore(60*30) #Store nonces 30 minutes which is more than enough
 
 class ValidationAPI(Resource):
 	def __init__(self):
 		super(ValidationAPI, self).__init__()
 
-	def get(self, token, signature):
-		global sessionKey
-		return { 'signature': sessionKey.get_public_key() }
+	def get(self, nonce, btcaddress, signature):
+		return { 'result': noncedb.nonce_find_and_remove(int(nonce)) }
 
-class RequestTokenAPI(Resource):
+class RequestNonceAPI(Resource):
     def __init__(self):
-        super(RequestTokenAPI, self).__init__()
+        super(RequestNonceAPI, self).__init__()
         
-    def get(self, pubaddress):
-        return { 'token': '' }
+    def get(self):
+        return { 'nonce': noncedb.generate_nonce() }
 
-api.add_resource(RequestTokenAPI, '/coinauth/api/v0.1/requesttoken/<pubaddress>', endpoint = 'requesttoken')
-api.add_resource(ValidationAPI, '/coinauth/api/v0.1/validate/<token>/<signature>', endpoint = 'validate')
+api.add_resource(RequestNonceAPI, '/coinauth/api/v0.1/requestnonce/', endpoint = 'requestnonce')
+api.add_resource(ValidationAPI, '/coinauth/api/v0.1/validate/<nonce>/<btcaddress>/<signature>', endpoint = 'validate')
     
 if __name__ == '__main__':
     app.run(debug = True)
