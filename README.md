@@ -13,10 +13,10 @@ Basic flow of this service is as follows:
 
 The nonce is comprised of the following:  
 1. A pseudo random number (for uniqueness)  
-2. The current time in seconds (to allow for token expiration)
-
-This service is built on top of Flask-RESTful http://flask-restful.readthedocs.org/en/latest/
-
+The server stores the time of creation for nonce expiration.  
+  
+This service is built on top of Flask-RESTful http://flask-restful.readthedocs.org/en/latest/  
+  
 Getting Started
 ---------------
 
