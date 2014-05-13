@@ -57,7 +57,10 @@ class NonceStore:
         self._dblock.acquire()
         iterSmallest = heapq.nsmallest(1, self._pq)
         while((len(iterSmallest)==1) and ((time() - iterSmallest[0][0]) > self._timeoutSeconds)):
-            self._entry_finder.pop(iterSmallest[0][1])
+            try:
+                self._entry_finder.pop(iterSmallest[0][1])
+            except KeyError:
+                pass #it may be already gone and that's OK.
             heapq.heappop(self._pq)
             iterSmallest = heapq.nsmallest(1, self._pq)
         self._dblock.release()

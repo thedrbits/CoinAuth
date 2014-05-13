@@ -17,7 +17,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 from flask import Flask, jsonify, abort, request, make_response, url_for
-from flask.views import MethodView
 from flask.ext.restful import Api, Resource, reqparse, fields, marshal
 import bitcoin
 from noncestore import NonceStore
