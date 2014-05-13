@@ -16,3 +16,19 @@ The nonce is comprised of the following:
 2. The current time in seconds (to allow for token expiration)
 
 This service is built on top of Flask-RESTful http://flask-restful.readthedocs.org/en/latest/
+
+Getting Started
+---------------
+
+To get started make sure you have properly installed:  
+Python 3.x  
+Flask  
+Flask-Restful  
+  
+Once Python is installed you can install Flash and Flask-Restful using pip example:  
+sudo pip install Flask  
+sudo pip install Flask-Restful  
+  
+Once you have those items installed simply launch the coinauth script.
+The following will launch coinauth.py using the Flask built in simple server:  
+python coinauth.py
