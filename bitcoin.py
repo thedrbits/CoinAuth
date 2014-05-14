@@ -25,7 +25,7 @@ import hmac
 from ecdsa import util
 
 def rev_hex(s):
-    return s.decode('hex')[::-1].encode('hex')
+    return binascii.hexlify(binascii.unhexlify(s)[::-1])
 
 def int_to_hex(i, length=1):
     s = hex(i)[2:].rstrip('L')
@@ -292,7 +292,7 @@ from ecdsa.util import string_to_number, number_to_string
 
 def msg_magic(message):
     varint = var_int(len(message))
-    encoded_varint = "".join([chr(int(varint[i:i+2], 16)) for i in xrange(0, len(varint), 2)])
+    encoded_varint = "".join([chr(int(varint[i:i+2], 16)) for i in range(0, len(varint), 2)])
     return "\x18Bitcoin Signed Message:\n" + encoded_varint + message
 
 
@@ -301,7 +301,7 @@ def verify_message(address, signature, message):
         EC_KEY.verify_message(address, signature, message)
         return True
     except Exception as e:
-        print_error("Verification error: {0}".format(e))
+        print("Verification error: {0}".format(e))
         return False
 
 
@@ -310,7 +310,7 @@ def encrypt_message(message, pubkey):
 
 
 def chunks(l, n):
-    return [l[i:i+n] for i in xrange(0, len(l), n)]
+    return [l[i:i+n] for i in range(0, len(l), n)]
 
 
 def ECC_YfromX(x,curved=curve_secp256k1, odd=True):
@@ -404,7 +404,7 @@ class EC_KEY(object):
         sig = base64.b64decode(signature)
         if len(sig) != 65: raise Exception("Wrong encoding")
         r,s = util.sigdecode_string(sig[1:], order)
-        nV = ord(sig[0])
+        nV = sig[0]
         if nV < 27 or nV >= 35:
             raise Exception("Bad encoding")
         if nV >= 31:
