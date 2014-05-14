@@ -90,5 +90,5 @@ def legendre_symbol(a, p):
     Returns 1 if a has a square root modulo
     p, -1 otherwise.
     """
-    ls = pow(a, (p - 1) / 2, p)
+    ls = pow(a, (p - 1) / 2) % p
     return -1 if ls == p - 1 else ls

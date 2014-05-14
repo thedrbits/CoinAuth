@@ -18,6 +18,7 @@
 
 from flask import Flask, jsonify, abort, request, make_response, url_for
 from flask.ext.restful import Api, Resource, reqparse, fields, marshal
+import urllib.parse
 import bitcoin
 from noncestore import NonceStore
 
@@ -31,7 +32,7 @@ class ValidationAPI(Resource):
 		super(ValidationAPI, self).__init__()
 	
 	def get(self, nonce, btcaddress, signature):
-		return { 'result': noncedb.nonce_find_and_remove(int(nonce)) }
+		return { 'result': bitcoin.verify_message(btcaddress, urllib.parse.unquote(signature), str(nonce)) }
 
 class RequestNonceAPI(Resource):
 	def __init__(self):
