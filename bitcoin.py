@@ -382,7 +382,7 @@ class EC_KEY(object):
         signature = private_key.sign_digest_deterministic( Hash( msg_magic(message) ), hashfunc=hashlib.sha256, sigencode = ecdsa.util.sigencode_string )
         assert public_key.verify_digest( signature, Hash( msg_magic(message) ), sigdecode = ecdsa.util.sigdecode_string)
         for i in range(4):
-            sig = base64.b64encode( chr(27 + i + (4 if compressed else 0)) + signature )
+            sig = base64.b64encode(bytes([27 + i + (4 if compressed else 0)]) + signature)
             try:
                 self.verify_message( address, sig, message)
                 return sig
@@ -700,14 +700,14 @@ def test_crypto():
     addr_u = public_key_to_bc_address(pubkey_u)
 
     print("Private key            ", '%064x'%pvk)
-    print("Compressed public key  ", pubkey_c.encode('hex'))
-    print("Uncompressed public key", pubkey_u.encode('hex'))
+    print("Compressed public key  ", binascii.hexlify(pubkey_c))
+    print("Uncompressed public key", binascii.hexlify(pubkey_u))
 
     message = "Chancellor on brink of second bailout for banks"
-    enc = EC_KEY.encrypt_message(message,pubkey_c)
+    #enc = EC_KEY.encrypt_message(message,pubkey_c)
     eck = EC_KEY(number_to_string(pvk,_r))
-    dec = eck.decrypt_message(enc)
-    print("decrypted", dec)
+    #dec = eck.decrypt_message(enc)
+    #print("decrypted", dec)
 
     signature = eck.sign_message(message, True, addr_c)
     print(signature)
