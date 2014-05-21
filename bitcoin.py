@@ -80,27 +80,27 @@ is_seed = lambda x: hmac_sha_512("Seed version", x).encode('hex')[0:2].startswit
 def i2d_ECPrivateKey(pkey, compressed=False):
     if compressed:
         key = '3081d30201010420' + \
-              '%064x' % pkey.secret + \
+              "{0:064x}".format(pkey.secret) + \
               'a081a53081a2020101302c06072a8648ce3d0101022100' + \
-              '%064x' % _p + \
+              "{0:064x}".format(_p) + \
               '3006040100040107042102' + \
-              '%064x' % _Gx + \
+              "{0:064x}".format(_Gx) + \
               '022100' + \
-              '%064x' % _r + \
+              "{0:064x}".format(_r) + \
               '020101a124032200'
     else:
         key = '308201130201010420' + \
-              '%064x' % pkey.secret + \
+              "{0:064x}".format(pkey.secret) + \
               'a081a53081a2020101302c06072a8648ce3d0101022100' + \
-              '%064x' % _p + \
+              "{0:064x}".format(_p) + \
               '3006040100040107044104' + \
-              '%064x' % _Gx + \
-              '%064x' % _Gy + \
+              "{0:064x}".format(_Gx) + \
+              "{0:064x}".format(_Gy) + \
               '022100' + \
-              '%064x' % _r + \
+              "{0:064x}".format(_r) + \
               '020101a144034200'
         
-    return key.decode('hex') + i2o_ECPublicKey(pkey.pubkey, compressed)
+    return binascii.unhexlify(key) + i2o_ECPublicKey(pkey.pubkey, compressed)
     
 def i2o_ECPublicKey(pubkey, compressed=False):
     # public keys are 65 bytes long (520 bits)
@@ -109,9 +109,9 @@ def i2o_ECPublicKey(pubkey, compressed=False):
     # compressed keys: <sign> <x> where <sign> is 0x02 if y is even and 0x03 if y is odd
     if compressed:
         if pubkey.point.y() & 1:
-            key = '03' + '%064x' % pubkey.point.x()
+            key = '03' + "{0:064x}".format(pubkey.point.x())
         else:
-            key = '02' + '%064x' % pubkey.point.x()
+            key = '02' + "{0:064x}".format(pubkey.point.x())
     else:
         key = '04'
         key += "{0:064x}".format(pubkey.point.x())
@@ -246,7 +246,7 @@ def GetPrivKey(pkey, compressed=False):
     return i2d_ECPrivateKey(pkey, compressed)
 
 def GetSecret(pkey):
-    return ('%064x' % pkey.secret).decode('hex')
+    return binascii.unhexlify("{0:064x}".format(pkey.secret))
 
 def is_compressed(sec):
     b = ASecretToSecret(sec)
@@ -699,11 +699,11 @@ def test_crypto():
     addr_c = public_key_to_bc_address(pubkey_c)
     addr_u = public_key_to_bc_address(pubkey_u)
 
-    print("Private key            ", '%064x'%pvk)
+    print("Private key            ", "{0:064x}".format(pvk))
     print("Compressed public key  ", binascii.hexlify(pubkey_c))
     print("Uncompressed public key", binascii.hexlify(pubkey_u))
 
-    message = "Chancellor on brink of second bailout for banks"
+    message = b"Chancellor on brink of second bailout for banks"
     #enc = EC_KEY.encrypt_message(message,pubkey_c)
     eck = EC_KEY(number_to_string(pvk,_r))
     #dec = eck.decrypt_message(enc)
